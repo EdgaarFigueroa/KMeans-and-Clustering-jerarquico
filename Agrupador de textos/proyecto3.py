@@ -12,20 +12,22 @@ import scikit_posthocs as sp
 
 
 #import data
-inFileKMeans=pd.read_csv('matrizfreq.csv')
-inFileHier=pd.read_csv('matrizfreq.csv')
+inFileKmeans=pd.read_csv('matrizfreq.csv')
+inFileHier=inFileKmeans
 
 
 #quitar la columna del identificador
-inFileKMeans_var=inFileKMeans.drop(['document'],axis=1)
-inFileHier_var=inFileHier.drop(['document'],axis=1)
+inFileKMeans_var=inFileKmeans.drop(['document'],axis=1)
+inFileHier_var=inFileKmeans_var
 
+#Mostrar una descripción sobre los datos
 print(inFileKMeans.info())
+#Mostrar todos los datos
 print(inFileKMeans.describe())
 
 #Normalizar los valores de las caracteristicas
 inFileKMeans_norm=(inFileKMeans_var-inFileKMeans_var.min())/(inFileKMeans_var.max()-inFileKMeans_var.min())
-inFileHier_norm=(inFileHier_var-inFileHier_var.min())/(inFileHier_var.max()-inFileHier_var.min())
+inFileHier_norm=inFileKmeans_norm
 
 #Busqueda de la cantidad óptima de clusters mediante La gráfica codo de jambú
 wcss = []
@@ -49,7 +51,7 @@ clustering.fit(inFileKMeans_norm)
 
 
 #Davis boulding
-print("El índice Davies Boulding es: ",davies_bouldin_score(inFileKMeans_norm, clustering.labels_))
+print("El índice Davies Boulding para KMeans es: ",davies_bouldin_score(inFileKMeans_norm, clustering.labels_))
 
 #Agregar la clasificación al archivo original
 inFileKMeans['KMeans_Clusters']=clustering.labels_
@@ -59,17 +61,26 @@ print(clustering.labels_)
 
 ##Aplicamos el método de Clustering jerárquico
 Clustering_Jerarquico=linkage(inFileHier_norm,'ward')
+
+#Graficamos el dendrograma
 plt.plot(dendrogram=sch.dendrogram(Clustering_Jerarquico))
 plt.title("Clustering jerárquico")
 plt.xlabel('')
 plt.ylabel('')
 plt.show()
+
+#Obtenemos los clusters para todos los datos (comienzan en 1)
 clusters= fcluster(Clustering_Jerarquico, t=3.3, criterion='distance')
 print(clusters)
+#Le restamos 1 al arreglo clusters para que comiencen desde 0
 clusters=clusters-1
 print(clusters)
-print("El índice Davies Boulding es: ",davies_bouldin_score(inFileHier_norm, clusters))
+
+#Asignamos guardamos los clusters en el archivo original
 inFileHier['Clustering_Jerarquico']=clusters
+
+#Davies Boulding index
+print("El índice Davies Boulding es: ",davies_bouldin_score(inFileHier_norm, clusters))
 
 ##Visualizamos los clusters
 #Se aplica el análisis de componentes principales
@@ -92,14 +103,14 @@ ax.set_xlabel('Componente 1', fontsize=12)
 ax.set_ylabel('Componente 2', fontsize=12)
 ax.set_title('Agrupamiento KMeans', fontsize=17)
 
-color_theme=np.array(["blue", "green", "red", "gold", "violet", "yellow"])
+color_theme=np.array(["blue", "green", "red"])
 ax.scatter(x=pca_nombres_inFileKMeans.Componente_1, y=pca_nombres_inFileKMeans.Componente_2, c=color_theme[pca_nombres_inFileKMeans.KMeans_Clusters], s=30)
 
 bx=fig.add_subplot(1,2,2)
 bx.set_xlabel('Componente 1', fontsize=12)
 bx.set_ylabel('Componente 2', fontsize=12)
 bx.set_title('Agrupamiento Clusterin Jerárquico', fontsize=17)
-color_theme=np.array(["blue", "violet", "grey", "gold", "pink", "green", "red", "yellow"])
+color_theme=np.array(["blue", "violet", "grey"])
 bx.scatter(x=pca_nombres_inFileHier.Componente_1, y=pca_nombres_inFileHier.Componente_2, c=color_theme[pca_nombres_inFileHier.Clustering_Jerarquico], s=30)
 plt.show()
 
