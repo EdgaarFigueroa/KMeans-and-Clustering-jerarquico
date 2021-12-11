@@ -12,8 +12,8 @@ import scikit_posthocs as sp
 
 
 #import data
-inFileKMeans=pd.read_csv('C:/Users/teame/OneDrive/Documentos/matrizfreq.csv')
-inFileHier=pd.read_csv('C:/Users/teame/OneDrive/Documentos/matrizfreq.csv')
+inFileKMeans=pd.read_csv('matrizfreq.csv')
+inFileHier=pd.read_csv('matrizfreq.csv')
 
 
 #quitar la columna del identificador
